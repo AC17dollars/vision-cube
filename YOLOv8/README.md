@@ -1,5 +1,5 @@
 # YOLOv8
-We use Google Colab to train our Cube Detection model. You can modify the code to train the model locally.
+We use Google Colab to train the Cube Detection model. You can modify the code to train the model locally.
 
 ## Upload the training code to Google Drive
 Create a directory named "Notebooks".
