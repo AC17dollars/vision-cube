@@ -18,7 +18,7 @@ To compile the GUI yourself, perform the following instructions:
 - Create a new Unity Hub (3D Core) project.
 - Open the created Project with Unity Editor.
 - Go to Assets -> Import Package -> Custom Package.
-- Select the downloaded "RubikCubeUnityExport.unitypackage" file.
+- Select the downloaded "RubikCubeUnityExport.unitypackage" file from GUI/Unity.
 - Select the appropriate scene.
 - Build and Run.
 
