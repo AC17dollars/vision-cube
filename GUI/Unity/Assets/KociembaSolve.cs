@@ -44,10 +44,10 @@ public class KociembaSolve : MonoBehaviour
     {
         readCube.ReadState();
         //transform.rotation = Quaternion.Euler(-18, -56, 25);
-       
-        if(!CubeState.keyMove && !CubeState.autoRotateDrag && !CubeState.drag)
+
+        if (!CubeState.keyMove && !CubeState.autoRotateDrag && !CubeState.drag)
         {
-           
+
             //ShowSteps();
             //keyboardControl.showSteps = true;
             keyboardControl.cubeSolvingSteps = "";
@@ -55,12 +55,13 @@ public class KociembaSolve : MonoBehaviour
             scrollbar.value = 1f;
             string moveString = cubeState.GetStateString();
             string info = "";
-            solutionString = Search.solution(moveString, out  info);
+            solutionString = Search.solution(moveString, out info);
+            ArduinoCommunication.arduinoMoveString = solutionString;
             //string solution = SearchRunTime.solution(moveString, out info, buildTables: true);
             List<string> solutionList = pythonListener.StringToList(solutionString);
             keyboardControl.firstSolve = true;
-          //  keyboardControl.firstSolve = true;
-           // keyboardControl.totalSolution = solutionString + "\n";
+            //  keyboardControl.firstSolve = true;
+            // keyboardControl.totalSolution = solutionString + "\n";
             //solutionList = AddRotationMove(solutionList);
             keyboardControl.kociembaSolveList = solutionList;
         }

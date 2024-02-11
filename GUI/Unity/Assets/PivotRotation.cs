@@ -17,8 +17,8 @@ public class PivotRotation : MonoBehaviour
     private CubeState cubeState;
 
     private Quaternion targetQuaternion;
-  
-    
+
+
     // Start is called before the first frame update
     void Start()
     {
@@ -104,7 +104,7 @@ public class PivotRotation : MonoBehaviour
         CubeState.autoRotateDrag = true;
     }
 
-  
+
 
 
     private void AutoRotate()
@@ -115,7 +115,7 @@ public class PivotRotation : MonoBehaviour
         transform.localRotation = Quaternion.RotateTowards(transform.localRotation, targetQuaternion, step);
 
         // if within one degree, set angle to target angle and end the rotation
-        if( Quaternion.Angle(transform.localRotation, targetQuaternion) <= 1)
+        if (Quaternion.Angle(transform.localRotation, targetQuaternion) <= 1)
         {
             transform.localRotation = targetQuaternion;
             // unparent the little cubes
@@ -133,11 +133,11 @@ public class PivotRotation : MonoBehaviour
     {
         cubeState.PickUp(side);
         Vector3 localForward = Vector3.zero - side[4].transform.parent.transform.localPosition;
-        targetQuaternion = Quaternion.AngleAxis(angle, localForward) *transform.localRotation;
-        activeSide= side;
+        targetQuaternion = Quaternion.AngleAxis(angle, localForward) * transform.localRotation;
+        activeSide = side;
         autoRotating = true;
         CubeState.autoRotateDrag = true;
     }
 
-   
+
 }

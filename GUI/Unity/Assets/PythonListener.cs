@@ -6,8 +6,7 @@ using System.Threading;
 using System.Collections.Generic;
 using System;
 using System.Diagnostics;
-using System.Threading.Tasks;
-using System.Runtime.InteropServices.WindowsRuntime;
+
 
 public class PythonListener : MonoBehaviour
 {
@@ -58,7 +57,7 @@ public class PythonListener : MonoBehaviour
             {
                 connectClient();
             }
-         
+
         }
         catch (Exception ex)
         {
@@ -81,7 +80,7 @@ public class PythonListener : MonoBehaviour
             running = Connection();
         }
     }
-    
+
 
     void SendQuitMessage()
     {
@@ -190,7 +189,7 @@ public class PythonListener : MonoBehaviour
             UnityEngine.Debug.LogError($"Error sending launch message: {ex.Message}");
         }
     }
-   
+
 }
 
 

@@ -19,11 +19,11 @@ public class keyboardControl : MonoBehaviour
     public static List<string> kociembaSolveList = new List<string>() { };// store list of moves to solve cube obtained from c#
     private List<string> undoMoveList = new List<string>() { };// store the list of solving moves performed for undo operation
     private List<string> redoMoveList = new List<string>() { };//store the list of solving moves for redo operation
-    public  Text solutionSteps;// display moves in screen
+    public Text solutionSteps;// display moves in screen
     public Text stepModeText;// display STEP MODE : ON or STEP MODE : OFF
     public Text displayText;// display DISPLAY: ON or DISPLAY : OFF
-  //  public static bool firstSolve = false;
-  //  public static string totalSolution = "";
+                            //  public static bool firstSolve = false;
+                            //  public static string totalSolution = "";
     public static int count = 1;
     public static bool stepMode = false;
     public static string cubeSolvingSteps = "";// hold string format of move list will be updated to solutionSteps.text later
@@ -49,65 +49,65 @@ public class keyboardControl : MonoBehaviour
     {
         //check if keys to rotate the face of cube is pressed and store in movelist buffer
         if (Input.GetKey(KeyCode.LeftShift))
+        {
+            if (Input.GetKeyDown(KeyCode.U))
             {
-                if (Input.GetKeyDown(KeyCode.U))
-                {
-                    moveBuffer.Add("U'");
-
-                }
-                else if (Input.GetKeyDown(KeyCode.D))
-                {
-                    moveBuffer.Add("D'");
-                }
-                else if (Input.GetKeyDown(KeyCode.F))
-                {
-                    moveBuffer.Add("F'");
-                }
-                else if (Input.GetKeyDown(KeyCode.B))
-                {
-                    moveBuffer.Add("B'");
-                }
-                else if (Input.GetKeyDown(KeyCode.L))
-                {
-                    moveBuffer.Add("L'");
-                }
-                else if (Input.GetKeyDown(KeyCode.R))
-                {
-                    moveBuffer.Add("R'");
-                }
+                moveBuffer.Add("U'");
 
             }
-            else
+            else if (Input.GetKeyDown(KeyCode.D))
             {
-                if (Input.GetKeyDown(KeyCode.U))
-                {
-                    moveBuffer.Add("U");
-                }
-                else if (Input.GetKeyDown(KeyCode.D))
-                {
-                    moveBuffer.Add("D");
-                }
-                else if (Input.GetKeyDown(KeyCode.F))
-                {
-                    moveBuffer.Add("F");
-                }
-                else if (Input.GetKeyDown(KeyCode.B))
-                {
-                    moveBuffer.Add("B");
-                }
-                else if (Input.GetKeyDown(KeyCode.L))
-                {
-                    moveBuffer.Add("L");
-                }
-                else if (Input.GetKeyDown(KeyCode.R))
-                {
-                    moveBuffer.Add("R");
-                }
+                moveBuffer.Add("D'");
+            }
+            else if (Input.GetKeyDown(KeyCode.F))
+            {
+                moveBuffer.Add("F'");
+            }
+            else if (Input.GetKeyDown(KeyCode.B))
+            {
+                moveBuffer.Add("B'");
+            }
+            else if (Input.GetKeyDown(KeyCode.L))
+            {
+                moveBuffer.Add("L'");
+            }
+            else if (Input.GetKeyDown(KeyCode.R))
+            {
+                moveBuffer.Add("R'");
             }
 
-    
+        }
+        else
+        {
+            if (Input.GetKeyDown(KeyCode.U))
+            {
+                moveBuffer.Add("U");
+            }
+            else if (Input.GetKeyDown(KeyCode.D))
+            {
+                moveBuffer.Add("D");
+            }
+            else if (Input.GetKeyDown(KeyCode.F))
+            {
+                moveBuffer.Add("F");
+            }
+            else if (Input.GetKeyDown(KeyCode.B))
+            {
+                moveBuffer.Add("B");
+            }
+            else if (Input.GetKeyDown(KeyCode.L))
+            {
+                moveBuffer.Add("L");
+            }
+            else if (Input.GetKeyDown(KeyCode.R))
+            {
+                moveBuffer.Add("R");
+            }
+        }
+
+
         //check if moveBuffer has pending move and if so perform that move
-        if(CubeState.started && !CubeState.keyMove && !CubeState.autoRotateDrag && !CubeState.drag && moveBuffer.Count>0)
+        if (CubeState.started && !CubeState.keyMove && !CubeState.autoRotateDrag && !CubeState.drag && moveBuffer.Count > 0)
         {
             DoMove(moveBuffer[0]);
             moveBuffer.Remove(moveBuffer[0]);
@@ -133,7 +133,7 @@ public class keyboardControl : MonoBehaviour
             DoMove(scrambleMoveList[0]);
             scrambleMoveList.Remove(scrambleMoveList[0]);
         }
-  
+
         /*check if solve move list from c# has been generated but the first move has not been performed
           display only the arrow and solution step on screen without actually performing the move for the first time
          */
@@ -147,7 +147,7 @@ public class keyboardControl : MonoBehaviour
             {
                 cubeSolvingSteps += "Use Arrow Keys to navigate. \n";
             }
-            undoMoveList = new List<string> ();
+            undoMoveList = new List<string>();
             redoMoveList = new List<string>();
             firstSolve = false;
         }
@@ -155,8 +155,8 @@ public class keyboardControl : MonoBehaviour
         //check if solve list from c# has move pending and it is not in step mode then perform pending moves
         if (CubeState.started && !CubeState.autoCubeRotate && !CubeState.keyMove && !CubeState.autoRotateDrag && !CubeState.drag && kociembaSolveList.Count > 0 && redoMoveList.Count == 0 && !stepMode)
         {
-            
-         
+
+
             // first deactivate all previous arrows then activate the current move arrow
             arrowGenerator.DeactivateArrow();
             arrowGenerator.DisplayArrow(kociembaSolveList[0]);
@@ -167,12 +167,12 @@ public class keyboardControl : MonoBehaviour
             }
             undoMoveList.Insert(0, ReverseStep(kociembaSolveList[0]));
             DoMove(kociembaSolveList[0]);
-           // count++;
-            kociembaSolveList.Remove(kociembaSolveList[0]);         
+            // count++;
+            kociembaSolveList.Remove(kociembaSolveList[0]);
         }
 
         //check if solve list from C# has moves remaining and in step mode then perform moves only if user press the right arrow key
-        if (CubeState.started && !CubeState.keyMove && !CubeState.autoRotateDrag && !CubeState.drag && kociembaSolveList.Count > 0 && redoMoveList.Count==0 && Input.GetKeyDown(KeyCode.RightArrow) && stepMode)
+        if (CubeState.started && !CubeState.keyMove && !CubeState.autoRotateDrag && !CubeState.drag && kociembaSolveList.Count > 0 && redoMoveList.Count == 0 && Input.GetKeyDown(KeyCode.RightArrow) && stepMode)
         {
 
             arrowGenerator.DeactivateArrow();
@@ -182,22 +182,22 @@ public class keyboardControl : MonoBehaviour
             {
                 cubeSolvingSteps += $"{count}. {RephraseString(kociembaSolveList[0])} \n";
                 count++;
-            }      
+            }
             // store performed move in previousMoveList to give user chance to revert cube state
             undoMoveList.Insert(0, ReverseStep(kociembaSolveList[0]));
             DoMove(kociembaSolveList[0]);
             // count++;
             kociembaSolveList.Remove(kociembaSolveList[0]);
-            
+
         }
 
         /*check if in step mode and user press left arrow key and if the previous move list has moves remaining if so perform move
           if so perform move. this is done to allow user to revert to previous cube state on pressing left arrow key
          */
         if (CubeState.started && !CubeState.keyMove && !CubeState.autoRotateDrag && !CubeState.drag && undoMoveList.Count > 0 && Input.GetKeyDown(KeyCode.LeftArrow))
-        {            
+        {
             count--;
-            string removeString = "";      
+            string removeString = "";
             removeString = $"{count}. {RephraseString(ReverseStep(undoMoveList[0]))} \n";
             cubeSolvingSteps = cubeSolvingSteps.Replace(removeString, "");
             arrowGenerator.DeactivateArrow();
@@ -236,7 +236,7 @@ public class keyboardControl : MonoBehaviour
             DoMove(redoMoveList[0]);
             undoMoveList.Insert(0, ReverseStep(redoMoveList[0]));
             redoMoveList.Remove(redoMoveList[0]);
-            
+
         }
 
 
@@ -255,7 +255,7 @@ public class keyboardControl : MonoBehaviour
 
 
         //Remove the arrow from screen after all the solve moves from c# has been performed
-        if(CubeState.started && !CubeState.keyMove && !CubeState.autoRotateDrag && !CubeState.drag && kociembaSolveList.Count == 0  && redoMoveList.Count == 0)
+        if (CubeState.started && !CubeState.keyMove && !CubeState.autoRotateDrag && !CubeState.drag && kociembaSolveList.Count == 0 && redoMoveList.Count == 0)
         {
             arrowGenerator.DeactivateArrow();
         }
@@ -277,13 +277,13 @@ public class keyboardControl : MonoBehaviour
 
     public void DisplaySteps()
     {
-        if(showSteps)
+        if (showSteps)
         {
             displayText.text = "Display: OFF";
             //scrollBar.value = 1f;
             scrollArea.SetActive(false);
             arrowGenerator.DeactivateMainArrow();
-            
+
         }
         else
         {
@@ -300,47 +300,47 @@ public class keyboardControl : MonoBehaviour
     {
         readCube.ReadState();
         CubeState.keyMove = true;
-        if(move == "U")
+        if (move == "U")
         {
-            
+
             RotateSide(cubeState.up, -90);
-            
+
         }
-        else if(move =="U'")
+        else if (move == "U'")
         {
-            
+
             RotateSide(cubeState.up, 90);
-           
+
         }
-        else if (move == "D" )
+        else if (move == "D")
         {
-            
+
             RotateSide(cubeState.down, -90);
-           
+
         }
         else if (move == "D'")
         {
-           
+
             RotateSide(cubeState.down, +90);
-            
+
         }
         else if (move == "F")
         {
-           
+
             RotateSide(cubeState.front, -90);
-            
+
         }
         else if (move == "F'")
         {
-            
+
             RotateSide(cubeState.front, 90);
-            
+
         }
         else if (move == "B")
         {
 
             RotateSide(cubeState.back, -90);
-            
+
         }
         else if (move == "B'")
         {
@@ -351,32 +351,32 @@ public class keyboardControl : MonoBehaviour
         }
         else if (move == "L")
         {
-           
+
             RotateSide(cubeState.left, -90);
-           
+
         }
         else if (move == "L'")
         {
-          
+
             RotateSide(cubeState.left, 90);
-           
+
         }
         else if (move == "R")
         {
-            
+
             RotateSide(cubeState.right, -90);
 
         }
         else if (move == "R'")
         {
-           
+
             RotateSide(cubeState.right, 90);
-           
+
         }
-        else if(move == "U2")
+        else if (move == "U2")
         {
             RotateSide(cubeState.up, 180);
-            
+
         }
         else if (move == "D2")
         {
@@ -402,19 +402,19 @@ public class keyboardControl : MonoBehaviour
         }
         else if (move == "TurnBack")
         {
-           
+
             rotateBigCube.RotateCube("B");
-            
+
         }
-        else if(move == "TurnFront")
+        else if (move == "TurnFront")
         {
-            
+
             rotateBigCube.RotateCube("F");
         }
     }
 
 
-    
+
     void RotateSide(List<GameObject> side, float angle)
     {
         PivotRotation pr = side[4].transform.parent.GetComponent<PivotRotation>();
@@ -472,7 +472,7 @@ public class keyboardControl : MonoBehaviour
         {
             return "R";
         }
-        else if(step == "F2" || step =="B2" || step == "U2" || step == "D2" || step == "L2" || step == "R2")
+        else if (step == "F2" || step == "B2" || step == "U2" || step == "D2" || step == "L2" || step == "R2")
         {
             return step;
         }
