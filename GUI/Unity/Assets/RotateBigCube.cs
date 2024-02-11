@@ -33,11 +33,11 @@ public class RotateBigCube : MonoBehaviour
     void Update()
     {
         Drag();
-        if(Input.GetKeyDown(KeyCode.Return) && CubeState.started && !CubeState.keyMove && !CubeState.autoRotateDrag && !CubeState.drag) 
+        if (Input.GetKeyDown(KeyCode.Return) && CubeState.started && !CubeState.keyMove && !CubeState.autoRotateDrag && !CubeState.drag)
         {
             transform.rotation = Quaternion.Euler(startingPosition);
         }
-     
+
     }
 
     private void LateUpdate()
@@ -47,11 +47,11 @@ public class RotateBigCube : MonoBehaviour
             transform.rotation = Quaternion.Euler(startingPosition);
             doOnce = false;
         }
-        if(autoRotateCube)
+        if (autoRotateCube)
         {
             AutoRotateCube();
         }
-      
+
     }
 
     private void AutoRotateCube()
@@ -70,15 +70,15 @@ public class RotateBigCube : MonoBehaviour
 
     public void RotateCube(string face)
     {
-        if(face == "B")
+        if (face == "B")
         {
             // targetQuaternion = Quaternion.Euler(13, 115, -21);
             targetQuaternion = Quaternion.Euler(0, 90, 0);
         }
-        else if(face == "F")
+        else if (face == "F")
         {
             //targetQuaternion = Quaternion.Euler(-18, -56, 25);
-            targetQuaternion = Quaternion.Euler(-18,-56,25);
+            targetQuaternion = Quaternion.Euler(-18, -56, 25);
         }
         autoRotateCube = true;
     }
@@ -89,7 +89,7 @@ public class RotateBigCube : MonoBehaviour
             // while the mouse is held doen the cube can be moved around its central axis to provide visual feedback
             mouseDelta = Input.mousePosition - previousMousePosition;
             mouseDelta *= .5f; // reduction of rotation speed
-            float currentY = transform.rotation.y%90;
+            float currentY = transform.rotation.y % 90;
             float currentZ = transform.rotation.z % 90;
             float currentX = transform.rotation.x % 90;
 
@@ -99,18 +99,18 @@ public class RotateBigCube : MonoBehaviour
             }
             else if (currentX >= 70)
             {
-                transform.rotation = Quaternion.Euler(0,0,-mouseDelta.x) * transform.rotation;
+                transform.rotation = Quaternion.Euler(0, 0, -mouseDelta.x) * transform.rotation;
             }
             else
             {
                 transform.rotation = Quaternion.Euler(0, -mouseDelta.x, -mouseDelta.x) * transform.rotation;
             }
-            
-            if(currentY <= 20)
+
+            if (currentY <= 20)
             {
-                transform.rotation = Quaternion.Euler(mouseDelta.y,0, 0) * transform.rotation;
+                transform.rotation = Quaternion.Euler(mouseDelta.y, 0, 0) * transform.rotation;
             }
-            else if(currentY >= 70)
+            else if (currentY >= 70)
             {
                 transform.rotation = Quaternion.Euler(0, 0, mouseDelta.y) * transform.rotation;
             }
@@ -119,13 +119,13 @@ public class RotateBigCube : MonoBehaviour
                 transform.rotation = Quaternion.Euler(mouseDelta.y, 0, mouseDelta.y) * transform.rotation;
             }
         }
-     
+
         previousMousePosition = Input.mousePosition;
     }
 
 
-    
 
-  
+
+
 
 }

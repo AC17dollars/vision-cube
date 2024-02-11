@@ -47,12 +47,12 @@ public class ReadCube : MonoBehaviour
 
         //set the state of each postiion in the list of sides so we know
         // what color is in what position
-        cubeState.up=ReadFace(upRays, tUp);
-        cubeState.down=ReadFace(downRays, tDown);
-        cubeState.front=ReadFace(frontRays, tFront);
-        cubeState.back=ReadFace(backRays, tBack);
-        cubeState.left=ReadFace(leftRays, tLeft);
-        cubeState.right=ReadFace(rightRays, tRight);
+        cubeState.up = ReadFace(upRays, tUp);
+        cubeState.down = ReadFace(downRays, tDown);
+        cubeState.front = ReadFace(frontRays, tFront);
+        cubeState.back = ReadFace(backRays, tBack);
+        cubeState.left = ReadFace(leftRays, tLeft);
+        cubeState.right = ReadFace(rightRays, tRight);
 
         // update the map with the found postitions
         cubeMap.Set();
@@ -78,9 +78,9 @@ public class ReadCube : MonoBehaviour
         // |0|1|2|
         // |3|4|5|
         // |6|7|8|
-        for(int y =1; y>-2; y--)
+        for (int y = 1; y > -2; y--)
         {
-            for(int x = -1; x <2; x++)
+            for (int x = -1; x < 2; x++)
             {
                 Vector3 startPos = new Vector3(rayTransform.localPosition.x + x,
                     rayTransform.localPosition.y + y,
@@ -98,7 +98,7 @@ public class ReadCube : MonoBehaviour
     public List<GameObject> ReadFace(List<GameObject> rayStarts, Transform rayTransform)
     {
         List<GameObject> facesHit = new List<GameObject>();
-        foreach(GameObject rayStart in rayStarts)
+        foreach (GameObject rayStart in rayStarts)
         {
             Vector3 ray = rayStart.transform.position;
             RaycastHit hit;
@@ -116,7 +116,7 @@ public class ReadCube : MonoBehaviour
                 Debug.DrawRay(ray, rayTransform.forward * 1000, Color.green);
             }
         }
-       
+
         return facesHit;
     }
 }
