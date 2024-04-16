@@ -12,32 +12,73 @@ public class ArduinoCommunication : MonoBehaviour
 {
     // Start is called before the first frame update
     public static string arduinoMoveString = "";
-
+    public static string setUpMoveString = "";
     SerialPort serialPort;
-    public string portName = "COM3";
-    public int baudRate = 9600;
-
+    
     void Start()
     {
-        serialPort = new SerialPort(portName, baudRate);
-        serialPort.Open();
-
+        try
+        {
+            serialPort = new SerialPort("COM5",19200);
+            serialPort.Open();
+            print("Started");
+        }
+        catch (Exception ex)
+        {
+            Debug.LogError("Error opening serial port: " + ex.Message);
+        }
     }
 
     // Update is called once per frame
     void Update()
     {
-        if (arduinoMoveString.Length > 0)
+        /
+        if (arduinoMoveString.Length > 0 && serialPort.IsOpen && serialPort != null)
         {
-            print(arduinoMoveString);
-            print(RephraseToBottomRotation(arduinoMoveString));
-            arduinoMoveString = "";
-            serialPort.Write(RephraseToBottomRotation(arduinoMoveString));
+            
+            if (arduinoMoveString[0] == 'z')
+            {
+                arduinoMoveString = arduinoMoveString.Substring(1);
+                serialPort.WriteLine(arduinoMoveString);
+                arduinoMoveString = "";
+            }
+            else
+            {
+
+                if(arduinoMoveString == "Q" || arduinoMoveString == "q" || arduinoMoveString =="w" || arduinoMoveString == "W" || arduinoMoveString == "e" || arduinoMoveString == "E" || arduinoMoveString == "t" || arduinoMoveString == "T")
+                {
+                    serialPort.WriteLine(arduinoMoveString);
+                    arduinoMoveString = "";
+                }
+                else if(arduinoMoveString == "y")
+                {
+                    serialPort.WriteLine("f");
+                    arduinoMoveString = "";
+                }
+                else if (arduinoMoveString == "o")
+                {
+                    serialPort.WriteLine("r");
+                    arduinoMoveString = "";
+                }
+                else if (arduinoMoveString == "p")
+                {
+                    serialPort.WriteLine("R");
+                    arduinoMoveString = "";
+                }
+                else
+                {
+                    print(RephraseToBottomRotation(arduinoMoveString));
+                    serialPort.WriteLine(RephraseToBottomRotation(arduinoMoveString));
+                    arduinoMoveString = "";
+
+                }
+            }
+         
         }
         if (serialPort.IsOpen && serialPort.BytesToRead > 0)
         {
             string data = serialPort.ReadLine();
-            Debug.Log("Data from Arduino:" + data);
+            Debug.Log("Data from Arduino: " + data);
         }
 
     }
@@ -51,7 +92,7 @@ public class ArduinoCommunication : MonoBehaviour
             if (moves[i][0] == 'D') continue;
             else if (moves[i][0] == 'R')
             {
-                moves[i] = "->D" + moves[i].Substring(1);
+                moves[i] = "fD" + moves[i].Substring(1);
                 for (int j = i + 1; j < moves.Count; j++)
                 {
                     switch (moves[j][0])
@@ -77,7 +118,7 @@ public class ArduinoCommunication : MonoBehaviour
             }
             else if (moves[i][0] == 'L')
             {
-                moves[i] = "->->->D" + moves[i].Substring(1);
+                moves[i] = "RRfD" + moves[i].Substring(1);
                 for (int j = i + 1; j < moves.Count; j++)
                 {
                     switch (moves[j][0])
@@ -89,13 +130,16 @@ public class ArduinoCommunication : MonoBehaviour
                             moves[j] = 'D' + moves[j].Substring(1);
                             break;
                         case 'U':
-                            moves[j] = 'L' + moves[j].Substring(1);
-                            break;
-                        case 'D':
                             moves[j] = 'R' + moves[j].Substring(1);
                             break;
+                        case 'D':
+                            moves[j] = 'L' + moves[j].Substring(1);
+                            break;
                         case 'F':
+                            moves[j] = 'B' + moves[j].Substring(1);
+                            break;
                         case 'B':
+                            moves[j] = 'F' + moves[j].Substring(1);
                             // Do nothing
                             break;
                     }
@@ -103,7 +147,7 @@ public class ArduinoCommunication : MonoBehaviour
             }
             else if (moves[i][0] == 'U')
             {
-                moves[i] = "->->D" + moves[i].Substring(1);
+                moves[i] = "ffD" + moves[i].Substring(1);
                 for (int j = i + 1; j < moves.Count; j++)
                 {
                     switch (moves[j][0])
@@ -129,7 +173,7 @@ public class ArduinoCommunication : MonoBehaviour
             }
             else if (moves[i][0] == 'F')
             {
-                moves[i] = "=>->D" + moves[i].Substring(1);
+                moves[i] = "RfD" + moves[i].Substring(1);
                 for (int j = i + 1; j < moves.Count; j++)
                 {
                     switch (moves[j][0])
@@ -157,7 +201,7 @@ public class ArduinoCommunication : MonoBehaviour
             }
             else if (moves[i][0] == 'B')
             {
-                moves[i] = "<=->D" + moves[i].Substring(1);
+                moves[i] = "rfD" + moves[i].Substring(1);
                 for (int j = i + 1; j < moves.Count; j++)
                 {
                     switch (moves[j][0])
@@ -184,223 +228,19 @@ public class ArduinoCommunication : MonoBehaviour
                 }
             }
         }
-
-        return string.Join(" ", moves);
-
+        string arduinoMove = string.Join("   ", moves);
+        arduinoMove = arduinoMove.Replace("D'", "d");
+        arduinoMove = arduinoMove.Replace("D2", "s");
+        print("Arduino Move:"+arduinoMove);
+        return arduinoMove;
+        
     }
 
     private void OnApplicationQuit()
     {
-        if (serialPort != null && serialPort.IsOpen)
+        if(serialPort != null && serialPort.IsOpen)
         {
             serialPort.Close();
         }
     }
 }
-
-
-
-
-
-//#include <iostream>
-//#include <string>
-//#include <vector>
-//#include <sstream>
-
-//using namespace std;
-
-//int main()
-//{
-
-//    string sentence;
-
-//    //    cout << "Enter a sentence: ";
-//    //  getline(cin, sentence);
-
-//    //string storedSentence = sentence;
-//    sentence = "U D2 F R U2 F' L2 D' F R2 U2 L' B2 U B2 U2 F2 U' L2 U' B2 U";
-
-
-//    stringstream ss(sentence);
-//    string word;
-//    vector<string> words;
-
-
-//    while (ss >> word)
-//    {
-//        words.push_back(word);
-//    }
-
-
-//    for (int i = 0; i < words.size(); i++)
-//    {
-//        if (words[i][0] == 'D') continue;
-//        else if (words[i][0] == 'R')
-//        {
-//            words[i] = "->D" + words[i].substr(1);
-//            for (int j = i + 1; j < words.size(); j++)
-//            {
-//                if (words[j][0] == 'R')
-//                {
-//                    words[j][0] = 'D';
-//                }
-//                else if (words[j][0] == 'L')
-//                {
-//                    words[j][0] = 'U';
-//                }
-//                else if (words[j][0] == 'U')
-//                {
-//                    words[j][0] = 'R';
-//                }
-//                else if (words[j][0] == 'D')
-//                {
-//                    words[j][0] = 'L';
-//                }
-//                else if (words[j][0] == 'F')
-//                {
-//                    words[j][0] = 'F';
-//                }
-//                else if (words[j][0] == 'B')
-//                {
-//                    words[j][0] = 'B';
-//                }
-//            }
-//        }
-
-//        else if (words[i][0] == 'L')
-//        {
-//            words[i] = "->->->D" + words[i].substr(1);
-//            for (int j = i + 1; j < words.size(); j++)
-//            {
-//                if (words[j][0] == 'R')
-//                {
-//                    words[j][0] = 'U';
-//                }
-//                else if (words[j][0] == 'L')
-//                {
-//                    words[j][0] = 'D';
-//                }
-//                else if (words[j][0] == 'U')
-//                {
-//                    words[j][0] = 'L';
-//                }
-//                else if (words[j][0] == 'D')
-//                {
-//                    words[j][0] = 'R';
-//                }
-//                else if (words[j][0] == 'F')
-//                {
-//                    words[j][0] = 'F';
-//                }
-//                else if (words[j][0] == 'B')
-//                {
-//                    words[j][0] = 'B';
-//                }
-//            }
-//        }
-
-//        else if (words[i][0] == 'U')
-//        {
-//            words[i] = "->->D" + words[i].substr(1);
-//            for (int j = i + 1; j < words.size(); j++)
-//            {
-//                if (words[j][0] == 'R')
-//                {
-//                    words[j][0] = 'L';
-//                }
-//                else if (words[j][0] == 'L')
-//                {
-//                    words[j][0] = 'R';
-//                }
-//                else if (words[j][0] == 'U')
-//                {
-//                    words[j][0] = 'D';
-//                }
-//                else if (words[j][0] == 'D')
-//                {
-//                    words[j][0] = 'U';
-//                }
-//                else if (words[j][0] == 'F')
-//                {
-//                    words[j][0] = 'F';
-//                }
-//                else if (words[j][0] == 'B')
-//                {
-//                    words[j][0] = 'B';
-//                }
-//            }
-//        }
-
-//        else if (words[i][0] == 'F')
-//        {
-//            words[i] = "=>->D" + words[i].substr(1);
-//            for (int j = i + 1; j < words.size(); j++)
-//            {
-//                if (words[j][0] == 'R')
-//                {
-//                    words[j][0] = 'B';
-//                }
-//                else if (words[j][0] == 'L')
-//                {
-//                    words[j][0] = 'F';
-//                }
-//                else if (words[j][0] == 'U')
-//                {
-//                    words[j][0] = 'R';
-//                }
-//                else if (words[j][0] == 'D')
-//                {
-//                    words[j][0] = 'L';
-//                }
-//                else if (words[j][0] == 'F')
-//                {
-//                    words[j][0] = 'D';
-//                }
-//                else if (words[j][0] == 'B')
-//                {
-//                    words[j][0] = 'U';
-//                }
-//            }
-//        }
-
-//        else if (words[i][0] == 'B')
-//        {
-//            words[i] = "<=->D" + words[i].substr(1);
-//            for (int j = i + 1; j < words.size(); j++)
-//            {
-//                if (words[j][0] == 'R')
-//                {
-//                    words[j][0] = 'F';
-//                }
-//                else if (words[j][0] == 'L')
-//                {
-//                    words[j][0] = 'B';
-//                }
-//                else if (words[j][0] == 'U')
-//                {
-//                    words[j][0] = 'R';
-//                }
-//                else if (words[j][0] == 'D')
-//                {
-//                    words[j][0] = 'L';
-//                }
-//                else if (words[j][0] == 'F')
-//                {
-//                    words[j][0] = 'U';
-//                }
-//                else if (words[j][0] == 'B')
-//                {
-//                    words[j][0] = 'D';
-//                }
-//            }
-//        }
-
-//    }
-//    int num = 1;
-//    for (string & w: words)
-//    {
-//        cout << num << ". " << w << endl;
-//        num++;
-//    }
-//    return 0;
-//}

@@ -4,11 +4,12 @@ from ultralytics import YOLO
 import cv2
 import kociemba
 import socket
+import numpy as np
 
 host, port = "127.0.0.1", 25001
 
 #Model path
-model_path = os.path.join('.','detection_model', 'bestLatest.pt')
+model_path = os.path.join('.','detection_model', 'best.pt')
 
 # Load YOLO model
 model = YOLO(model_path)
@@ -28,7 +29,7 @@ color_names = {
     6: 'Cube'
     # Add more color names if needed
 }
-threshold = 0.5
+threshold = 0.7
 cPress = 0
 
 myObjects = []  # List to store detected objects
@@ -67,13 +68,8 @@ currentFace = ""
 
 displayText=""
 
-
-
-
-    
-def LaunchCamera():
+def LaunchCamera(Auto):
     scanFail = False
-    displayText=""
     cPress = 0
     threshold = 0.5
     solvedString="UUUUUUUUURRRRRRRRRFFFFFFFFFDDDDDDDDDLLLLLLLLLBBBBBBBBB"
@@ -93,12 +89,18 @@ def LaunchCamera():
     'Orange':"",
     'Blue':""
     }
+    cap = None
+
+    # Check indices 1 to 10
+
     cap = cv2.VideoCapture(0)
+    if Auto:
+        cpressCounter = 0
+        startTime = time.time()
+    else:
+        startTime = 0
     while True:
         ret, frame = cap.read()
-
-        # Display the frame
-        ################################
         image = frame.copy()
         results = model(frame)[0]
         
@@ -161,12 +163,10 @@ def LaunchCamera():
                 cv2.putText(frame, currentFace, (20,100), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 3)
     
         else:
-            cv2.putText(frame, "Press c to read face", (20,100), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 0), 5)
-            cv2.putText(frame, "Press c to read face", (20,100), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 3)
+            if Auto==False:
+                cv2.putText(frame, "Press c to read face", (20,100), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 0), 5)
+                cv2.putText(frame, "Press c to read face", (20,100), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 3)
 
-            #time.sleep(3)
-            #scanFail = False
-        displayText = ""
         y_value = 100
         for key,value in cubeState.items():
             if len(value) == 9:
@@ -182,17 +182,23 @@ def LaunchCamera():
         cv2.putText(frame,"Yolo Object Detection",(150,30),cv2.FONT_HERSHEY_SIMPLEX,1,(0,0,0),5)
         cv2.putText(frame,"Yolo Object Detection",(150,30),cv2.FONT_HERSHEY_SIMPLEX,1,(255,255,255),3)
         # Display the frame
+        
         cv2.imshow('Real-time Object Detection', frame)
 
-        ######################################
-        
         # Check for 'c' key press to take a picture and analyze the color
         key = cv2.waitKey(1)
-        if key == ord('c'):
+        if Auto:
+            currentTime = time.time()
+            elaspedTime = currentTime - startTime
+        else:
+            elaspedTime = 0
+        if key == ord('c') or elaspedTime>=10:
             #cv2.imshow('Real-time Object Detection', frame)
 
             # Take a picture
             cPress = 1
+            if Auto:
+                startTime = time.time()
             scanFail = False
             #image = frame.copy()
 
@@ -238,10 +244,7 @@ def LaunchCamera():
                             'y_coord': yCenter,
                         })
 
-            # Display the first letter of the detected color label in real-time
-            # for obj in myObjects:
-            #     cv2.putText(frame, obj['color'], (obj['x_coord'], obj['y_coord']), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2)
-
+  
             sorted_objects = sorted(myObjects, key=lambda x: x['y_coord'])
 
             # Divide the sorted list into groups of 3
@@ -262,6 +265,8 @@ def LaunchCamera():
                 
             # Clear the list for the next capture
             if len(currentFace) == 9:
+                if Auto:
+                    cpressCounter = cpressCounter + 1
                 if currentFace[4] =='G':
                     cubeState['Green'] = currentFace
                 elif currentFace[4] =='B':
@@ -275,6 +280,13 @@ def LaunchCamera():
                 elif currentFace[4] =='Y':
                     cubeState['Yellow'] = currentFace
 
+                if Auto:
+                    if cpressCounter <=3:
+                        sock.sendall("qzf".encode("utf-8"))
+                    elif cpressCounter == 4:
+                        sock.sendall("qzRfr".encode("utf-8"))
+                    elif cpressCounter == 5:
+                        sock.sendall("qzffrr".encode("utf-8"))
 
             myObjects = []
             
@@ -311,6 +323,8 @@ def LaunchCamera():
             print(cubeStateString)
                 
             try:
+                if Auto:
+                    sock.sendall("qzrr".encode("utf-8"))
                 unityData ="z"+(kociemba.solve(solvedString,cubeStateString))
                 sock.sendall(unityData.encode("utf-8"))
                 break
@@ -339,14 +353,23 @@ def LaunchCamera():
         
 
     
-
-
+def GenerateKociembaSolution(unityCubeState):
+    solvedString="UUUUUUUUURRRRRRRRRFFFFFFFFFDDDDDDDDDLLLLLLLLLBBBBBBBBB"
+    unityData = "q"+(kociemba.solve(solvedString,unityCubeState))
+    sock.sendall(unityData.encode("utf-8"))
+    
 
 while True:
     response = sock.recv(1024).decode("utf-8")
     print(response)
     if response == "Launch Camera":
-        LaunchCamera()
-    if response == "Quit":
+        LaunchCamera(False)
+    elif response == "Quit":
         sock.close()
         break
+    elif response == "Launch Auto":
+        LaunchCamera(True)
+    elif response[0] == "G":
+        GenerateKociembaSolution(response[1:])
+    response = ""
+
