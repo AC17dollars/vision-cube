@@ -40,43 +40,42 @@ public class KociembaSolve : MonoBehaviour
 
     }
 
-    public void SolveFromKociemba()
+    public void SolveFromKociemba(bool SolveRealCube = false)
     {
         readCube.ReadState();
         //transform.rotation = Quaternion.Euler(-18, -56, 25);
-
-        if (!CubeState.keyMove && !CubeState.autoRotateDrag && !CubeState.drag)
+        if(!CubeState.keyMove && !CubeState.autoRotateDrag && !CubeState.drag)
         {
-
-            //ShowSteps();
-            //keyboardControl.showSteps = true;
+           
+            
             keyboardControl.cubeSolvingSteps = "";
             keyboardControl.count = 1;
             scrollbar.value = 1f;
             string moveString = cubeState.GetStateString();
             string info = "";
-            solutionString = Search.solution(moveString, out info);
-            ArduinoCommunication.arduinoMoveString = solutionString;
+            solutionString = Search.solution(moveString, out  info);
+            if(SolveRealCube)
+            {
+                ArduinoCommunication.arduinoMoveString = solutionString;
+            }
             //string solution = SearchRunTime.solution(moveString, out info, buildTables: true);
             List<string> solutionList = pythonListener.StringToList(solutionString);
             keyboardControl.firstSolve = true;
-            //  keyboardControl.firstSolve = true;
-            // keyboardControl.totalSolution = solutionString + "\n";
-            //solutionList = AddRotationMove(solutionList);
+          
             keyboardControl.kociembaSolveList = solutionList;
         }
     }
 
 
-    public void Scramble()
+    public void Scramble(bool ScrambleRealCube = false)
     {
         if (!CubeState.keyMove)
         {
-            //keyboardControl.showSteps = false;
+            
             keyboardControl.cubeSolvingSteps = "";
             keyboardControl.count = 1;
             scrollbar.value = 1f;
-            //ShowSteps();
+           
             List<string> moves = new List<string>();
             int shuffleLength = Random.Range(10, 20);
             for (int i = 0; i < shuffleLength; i++)
@@ -84,7 +83,28 @@ public class KociembaSolve : MonoBehaviour
                 int randomMove = Random.Range(0, allMoves.Count);
                 moves.Add(allMoves[randomMove]);
             }
+           
+            if (ScrambleRealCube)
+            {
+               
+                readCube.ReadState();
+                string moveString = cubeState.GetStateString();
+                print(moveString);
+                string solvedState = "UUUUUUUUURRRRRRRRRFFFFFFFFFDDDDDDDDDLLLLLLLLLBBBBBBBBB";
+                if(moveString == solvedState)
+                {
+                    ArduinoCommunication.arduinoMoveString = string.Join(" ", moves);
+                    
+                }
+                else
+                {
+                    PythonListener.pythonMessage = "G" + moveString;
+                    return;
+                }
+            }
             keyboardControl.scrambleMoveList = moves;
+          
+            keyboardControl.TotalMovesDone = "";
         }
     }
 }

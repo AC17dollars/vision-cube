@@ -6,7 +6,7 @@ using System.Threading;
 using System.Collections.Generic;
 using System;
 using System.Diagnostics;
-
+using System.Threading.Tasks;
 
 public class PythonListener : MonoBehaviour
 {
@@ -19,14 +19,35 @@ public class PythonListener : MonoBehaviour
     public string data = "";
     public string scrambleStep = "";
     public string solveStep = "";
+    private string pythonResponse = "";
+    public static string pythonMessage = "";
 
     void Start()
     {
         // Start the server
         thread = new Thread(new ThreadStart(StartServer));
         thread.Start();
+
+        Thread pythonThread = new Thread(new ThreadStart(ExecutePythonScript));
+        pythonThread.Start();  
+        
     }
 
+    private void ExecutePythonScript()
+    {
+        string scriptPath = Application.dataPath + "\\Python\\YoloCubeDetection.py";
+        ProcessStartInfo startInfo = new ProcessStartInfo
+        {
+            FileName = @"C:\Users\nimesh\anaconda3\python.exe",
+            Arguments = scriptPath,
+            UseShellExecute = false,
+            CreateNoWindow = true,
+        };
+        Process process = new Process();
+        process.StartInfo = startInfo;
+        process.Start();
+        process.WaitForExit();
+    }
     void OnDestroy()
     {
         // Clean up resources when the MonoBehaviour is being destroyed
@@ -42,6 +63,7 @@ public class PythonListener : MonoBehaviour
         thread?.Join();
     }
 
+        
     void StartServer()
     {
         try
@@ -57,7 +79,7 @@ public class PythonListener : MonoBehaviour
             {
                 connectClient();
             }
-
+         
         }
         catch (Exception ex)
         {
@@ -80,7 +102,7 @@ public class PythonListener : MonoBehaviour
             running = Connection();
         }
     }
-
+    
 
     void SendQuitMessage()
     {
@@ -102,13 +124,14 @@ public class PythonListener : MonoBehaviour
     {
         try
         {
-            // Read data from the network stream
+            //Read data from the network stream
             NetworkStream nwStream = client.GetStream();
             byte[] buffer = new byte[client.ReceiveBufferSize];
             int bytesRead = nwStream.Read(buffer, 0, client.ReceiveBufferSize);
 
-            // Decode the bytes into a string
+            //Decode the bytes into a string
             string dataReceived = Encoding.UTF8.GetString(buffer, 0, bytesRead);
+
             if (!string.IsNullOrEmpty(dataReceived))
             {
                 data = dataReceived;
@@ -124,7 +147,14 @@ public class PythonListener : MonoBehaviour
                     SendScrambleSteps();
                     return true;
                 }
-                // Handle data according to your requirements
+                else if (data[0] == 'q')
+                {
+                    data = data.Substring(1);
+                    ArduinoCommunication.arduinoMoveString = data;
+                    data = "";
+                    return true;
+                }
+                //Handle data according to your requirements
             }
         }
         catch (Exception ex)
@@ -139,7 +169,20 @@ public class PythonListener : MonoBehaviour
 
     void Update()
     {
-
+        if(pythonMessage.Length > 0)
+        {
+            try
+            {
+                NetworkStream nwStream = client.GetStream();
+                byte[] messageBytes = Encoding.UTF8.GetBytes(pythonMessage);
+                nwStream.Write(messageBytes, 0, messageBytes.Length);
+            }
+            catch (Exception ex)
+            {
+                UnityEngine.Debug.LogError($"Error sending python message: {ex.Message}");
+            }
+            pythonMessage = "";
+        }
 
     }
 
@@ -153,7 +196,7 @@ public class PythonListener : MonoBehaviour
     public void SendScrambleSteps()
     {
         print('1');
-        //scrambleStep = "B U2 F2 B2 U' B2 U L' D' F' B D2 B2 R2 U2 D B2 L2 D B2 L2";
+       
         if (scrambleStep != null && scrambleStep != "" && !CubeState.keyMove && !CubeState.autoRotateDrag && !CubeState.drag)
         {
             print(scrambleStep);
@@ -165,7 +208,7 @@ public class PythonListener : MonoBehaviour
     {
         print('2');
 
-        //solveStep = "R L' B' U R' U B L F L2 F' D2 B2 U' D2 F2 L2 D2 F2 L2";
+      
         if (solveStep != null && solveStep != "" && !CubeState.keyMove && !CubeState.autoRotateDrag && !CubeState.drag)
         {
             print(solveStep);
@@ -174,15 +217,25 @@ public class PythonListener : MonoBehaviour
         }
     }
 
-    public void launchPython()
+    public void launchPython(bool autoCamera = false)
     {
         try
         {
             // Get the network stream and send the message
             NetworkStream nwStream = client.GetStream();
-            string launchMessage = "Launch Camera";
-            byte[] launchBytes = Encoding.UTF8.GetBytes(launchMessage);
-            nwStream.Write(launchBytes, 0, launchBytes.Length);
+            if (!autoCamera)
+            {
+                string message = "Launch Camera";
+                byte[] launchBytes = Encoding.UTF8.GetBytes(message);
+                nwStream.Write(launchBytes, 0, launchBytes.Length);
+            }
+            else
+            {
+                string message = "Launch Auto";
+                byte[] launchBytes = Encoding.UTF8.GetBytes(message);
+                nwStream.Write(launchBytes,0,launchBytes.Length);
+                //perform moves to read cube face
+            }
         }
         catch (Exception ex)
         {
@@ -190,6 +243,129 @@ public class PythonListener : MonoBehaviour
         }
     }
 
+ 
+   
+    public void launchCameraAuto()
+    {
+        NetworkStream nwStream = client.GetStream();
+        string message = "center";
+        int bytesRead;
+        byte[] buffer = new byte[4096];
+        byte[] launchBytes = Encoding.UTF8.GetBytes(message);
+        nwStream.Write(launchBytes, 0, launchBytes.Length);
+
+        
+        int flipCount = 0;
+        string cubeCondition = "";
+        
+        while (true)
+        {
+
+            pythonResponse = "";
+            bytesRead = nwStream.Read(buffer, 0, buffer.Length);
+            pythonResponse = Encoding.UTF8.GetString(buffer, 0, bytesRead);
+            print("Received response: " + pythonResponse);
+            Array.Clear(buffer, 0, buffer.Length);
+
+
+            if (pythonResponse.Length > 0)
+            {
+
+                if (pythonResponse == "done")
+                {
+                    break;
+                }
+                else if (pythonResponse == "G")
+                {
+                    //move to next phase
+                    ArduinoCommunication.arduinoMoveString = "zf";
+                ;
+                    message = "center";
+                    launchBytes = Encoding.UTF8.GetBytes(message);
+                    nwStream.Write(launchBytes, 0, launchBytes.Length);
+
+                    bytesRead = nwStream.Read(buffer, 0, buffer.Length);
+                    pythonResponse = Encoding.UTF8.GetString(buffer, 0, bytesRead);
+                    print("Received response: " + pythonResponse);
+                    Array.Clear(buffer, 0, buffer.Length);
+                    cubeCondition += pythonResponse;
+
+                    ArduinoCommunication.arduinoMoveString = "zf";
+                 
+                    ArduinoCommunication.arduinoMoveString = "zf";
+                 
+                    ArduinoCommunication.arduinoMoveString = "zf";
+               
+                    ArduinoCommunication.arduinoMoveString = "zr";
+                  
+                    ArduinoCommunication.arduinoMoveString = "zf";
+              
+
+                    message = "center";
+                    launchBytes = Encoding.UTF8.GetBytes(message);
+                    nwStream.Write(launchBytes, 0, launchBytes.Length);
+
+                    bytesRead = nwStream.Read(buffer, 0, buffer.Length);
+                    pythonResponse = Encoding.UTF8.GetString(buffer, 0, bytesRead);
+                    print("Received response: " + pythonResponse);
+                    Array.Clear(buffer, 0, buffer.Length);
+                    cubeCondition += pythonResponse;
+
+                    ArduinoCommunication.arduinoMoveString = "zf";
+              
+                    ArduinoCommunication.arduinoMoveString = "zf";
+                
+                    ArduinoCommunication.arduinoMoveString = "zf";
+              
+                    ArduinoCommunication.arduinoMoveString = "zR";
+            
+
+                    if (cubeCondition == "OW")
+                    {
+                        ArduinoCommunication.arduinoMoveString = "zrfs";
+                    }
+                    else if (cubeCondition == "WR")
+                    {
+                        ArduinoCommunication.arduinoMoveString = "zfs";
+                    }
+                    else if (cubeCondition == "RY")
+                    {
+                        ArduinoCommunication.arduinoMoveString = "zrfs";
+                    }
+                    else if (cubeCondition == "YO")
+                    {
+                        ArduinoCommunication.arduinoMoveString = "zfff";
+                    }
+              
+                    break;
+
+                }
+                else
+                {
+                    //send data to arduino to flip
+                    ArduinoCommunication.arduinoMoveString = "y";
+                    
+                    flipCount++;
+                
+                    if (flipCount == 4)
+                    {
+                        flipCount = 0;
+                        ArduinoCommunication.arduinoMoveString = "zr";
+                    }
+                    else
+                    {
+                        message = "center";
+                        launchBytes = Encoding.UTF8.GetBytes(message);
+                        nwStream.Write(launchBytes, 0, launchBytes.Length);
+                        
+                    }
+                    
+                
+                }
+            }
+
+        }
+    }
 }
 
 

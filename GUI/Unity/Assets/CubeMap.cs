@@ -17,13 +17,13 @@ public class CubeMap : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-
+        
     }
 
     // Update is called once per frame
     void Update()
     {
-
+        
     }
 
     public void Set()
@@ -41,7 +41,7 @@ public class CubeMap : MonoBehaviour
     void UpdateMap(List<GameObject> face, Transform side)
     {
         int i = 0;
-        foreach (Transform map in side)
+        foreach(Transform map in side)
         {
             if (face[i].name[0] == 'F')
             {
