@@ -1,7 +1,7 @@
 # vision-cube
-"Vision-aided Mechanical Design for an Autonomous Rubik's Cube Solver" is system for solving Rubik's cube with 1 degree of freedom with a YOLOv8 based cube detection system to virtualize the Rubik's Cube in a GUI.
+"Mechanical Automation with Vision: A Design for Rubik’s Cube Solver" is system for solving Rubik's cube with 1 degree of freedom with a YOLOv8 based cube detection system to virtualize the Rubik's Cube in a GUI.
 
-Published @ [IOEGC15](http://conference.ioe.edu.np/publications/ioegc15/IOEGC-15-023-C1-2-42.pdf)
+Published @ IOEGC15 as [Mechanical Automation with Vision: A Design for Rubik’s Cube Solver](http://conference.ioe.edu.np/publications/ioegc15/IOEGC-15-023-C1-2-42.pdf)
 
 ## Demo Video
 Youtube: https://youtu.be/rlcDXjqy2Vs
