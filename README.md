@@ -1,7 +1,9 @@
 # vision-cube
 "Mechanical Automation with Vision: A Design for Rubik’s Cube Solver" is system for solving Rubik's cube with 1 degree of freedom with a YOLOv8 based cube detection system to virtualize the Rubik's Cube in a GUI.
 
-Published @ IOEGC15 as [Mechanical Automation with Vision: A Design for Rubik’s Cube Solver](http://conference.ioe.edu.np/publications/ioegc15/IOEGC-15-023-C1-2-42.pdf)
+Preprint @ [arXiv](https://arxiv.org/abs/2508.12469)
+
+Published @ [IOEGC](http://conference.ioe.edu.np/publications/ioegc15/IOEGC-15-023-C1-2-42.pdf)
 
 ## Demo Video
 Youtube: https://youtu.be/rlcDXjqy2Vs
@@ -20,5 +22,17 @@ If you find our work useful and would like to cite it in your research, please u
     volume       = {15},
     month        = {May},
     organization = {Institute of Engineering, Tribhuvan University, Nepal}
+}
+
+or
+
+@misc{chalise2025mechanicalautomationvisiondesign,
+      title={Mechanical Automation with Vision: A Design for Rubik's Cube Solver}, 
+      author={Abhinav Chalise and Nimesh Gopal Pradhan and Nishan Khanal and Prashant Raj Bista and Dinesh Baniya Kshatri},
+      year={2025},
+      eprint={2508.12469},
+      archivePrefix={arXiv},
+      primaryClass={cs.RO},
+      url={https://arxiv.org/abs/2508.12469}, 
 }
 ```
